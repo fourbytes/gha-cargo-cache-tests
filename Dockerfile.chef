@@ -1,19 +1,21 @@
 # syntax=docker/dockerfile:experimental
 
 FROM rust:latest as planner
-WORKDIR app
+WORKDIR /app
+
 RUN cargo install cargo-chef
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM rust:latest as cacher
-WORKDIR app
+WORKDIR /app
+
 RUN cargo install cargo-chef
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json --workspace
 
 FROM rust:latest as builder
-WORKDIR app
+WORKDIR /app
 
 COPY Cargo.toml ./
 COPY Cargo.lock ./
@@ -27,7 +29,7 @@ RUN cargo build --release
 FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y libpq-dev ca-certificates
 
-WORKDIR app
+WORKDIR /app
 
 COPY --from=builder /app/target/release/* /usr/bin
 
