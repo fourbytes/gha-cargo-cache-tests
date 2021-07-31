@@ -1,0 +1,98 @@
+name: Cargo Chef w/ Buildx GHA Cache
+
+on: push
+
+env:
+  DOCKER_BUILDKIT: 1
+  CARGO_TERM_COLOR: always
+  IMAGE: ghcr.io/fourbytes/gha-cargo-cache-tests
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      builder-image: ${{ env.IMAGE }}:${{ steps.meta.outputs.tags }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            ${{ env.IMAGE }}
+          tags: |
+            type=ref,event=branch,suffix=-builder
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          version: v0.6.0
+          buildkitd-flags: --debug
+      - name: Login to GHCR
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          file: Dockerfile.chef
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          target: builder
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    container:
+      image: ${{ needs.build.outputs.builder-image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    defaults:
+      run:
+        working-directory: /app
+
+    steps:
+      - name: Run tests
+        run: cargo test --release
+
+  package:
+    needs: [build, test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            ${{ env.IMAGE }}
+          tags: |
+            type=ref,event=branch
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          version: v0.6.0
+          buildkitd-flags: --debug
+      - name: Login to GHCR
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          file: Dockerfile.chef
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
