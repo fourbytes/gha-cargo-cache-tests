@@ -1,4 +1,4 @@
-name: Cargo Chef w/ Buildx GHA Cache
+name: Docker Cache Mount
 
 on: push
 
@@ -22,7 +22,7 @@ jobs:
           images: |
             ${{ env.IMAGE }}
           tags: |
-            type=ref,event=branch,suffix=-builder
+            type=ref,event=branch,suffix=-cm-builder
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
         with:
@@ -38,7 +38,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile.chef
+          file: Dockerfile.cache-mount
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -76,7 +76,7 @@ jobs:
           images: |
             ${{ env.IMAGE }}
           tags: |
-            type=ref,event=branch
+            type=ref,event=branch,suffix=-cm
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
         with:
@@ -92,7 +92,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile.chef
+          file: Dockerfile.cache-mount
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
