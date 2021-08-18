@@ -44,11 +44,11 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           target: builder
-          build-args:
-            SCCACHE_BUCKET: docker-rust-sccache-test
-            SCCACHE_ENDPOINT: ewr1.vultrobjects.com:443
-            AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_KEY }}
+          build-args: |
+            SCCACHE_BUCKET="docker-rust-sccache-test"
+            SCCACHE_ENDPOINT="ewr1.vultrobjects.com:443"
+            AWS_ACCESS_KEY_ID="${{ secrets.S3_ACCESS_KEY }}"
+            AWS_SECRET_ACCESS_KEY="${{ secrets.S3_SECRET_KEY }}"
 
 
   test:
