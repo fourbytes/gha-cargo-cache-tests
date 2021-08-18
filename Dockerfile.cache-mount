@@ -9,13 +9,13 @@ COPY src ./src
 COPY .git ./.git
 
 RUN --mount=type=cache,target=target --mount=type=cache,target=$CARGO_HOME \
-	cargo build --release
+	cargo build --release && cp -r target/release/ release/
 
 FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y libpq-dev ca-certificates
 
 WORKDIR /app
 
-COPY --from=builder /app/target/release/test-project /usr/bin
+COPY --from=builder /app/release/test-project /usr/bin
 
 CMD ["test-project"]

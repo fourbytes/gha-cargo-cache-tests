@@ -15,7 +15,8 @@ COPY Cargo.lock ./
 COPY src ./src
 COPY .git ./.git
 
-RUN cargo build --release \
+RUN sccache -s \
+	&& cargo build --release \
 	&& sccache -s
 
 FROM debian:bullseye-slim
