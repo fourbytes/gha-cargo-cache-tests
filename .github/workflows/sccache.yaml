@@ -1,4 +1,4 @@
-name: sscache over S3
+name: sccache over S3
 
 on: push
 
