@@ -18,19 +18,20 @@ Potential optimisations that I've yet to test:
 #### Fastest Timings
 | Stage    | Source Changed | Lockfile Changed |
 | -------: | -------------: | ---------------: |
-| build    | 3m 4s          | 7m 55s           |
-| test     | 2m 42s         | 4m 25s           |
-| package  | 1m 43s         | 1m 45s           |
-| total    | 13m 18s        |                  |
+| build    | 5m 57s         | 7m 55s           |
+| test     | 5m 4s          | 4m 25s           |
+| package  | 1m 22s         | 1m 45s           |
+| total    | 12m 52s        |                  |
 
 ### `cargo-chef` (cache to gha)
+> Seems to be quite inconsistent and I haven't yet found a fix.
 #### Fastest Timings
 | Stage    | Source Changed | Lockfile Changed |
 | -------: | -------------: | ---------------: |
-| build    | 2m 18s         | 8m 28s           |
-| test     | 53s            | 51s              |
-| package  | 2m 0s          | 6m 58s           |
-| total    | 11m 43s        |                  |
+| build    | 1m 23s         | 8m 28s           |
+| test     | 52s            | 51s              |
+| package  | 1m 15s         | 6m 58s           |
+| total    | 4m 2s          |                  |
 
 ### `sccache`
 #### Fastest Timings
@@ -45,10 +46,10 @@ Potential optimisations that I've yet to test:
 #### Fastest Timings
 | Stage    | Source Changed | Lockfile Changed |
 | -------: | -------------: | ---------------: |
-| build    | 1m 28s         | 8m 30s           |
-| test     | 47s            | 54s              |
-| package  | 1m 22s         | 1m 49s           |
-| total    | 4m 13s         |                  |
+| build    | 1m 21s         | 8m 30s           |
+| test     | 48s            | 54s              |
+| package  | 1m 16s         | 1m 49s           |
+| total    | 3m 52s         |                  |
 
 ### `sccache` + `cargo-chef` (cache to registry - split dependencies)
 #### Fastest Timings
