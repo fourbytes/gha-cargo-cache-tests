@@ -1,4 +1,4 @@
-name: BuildKit Cache Mount
+name: buildkit-cache-mount
 
 on: push
 

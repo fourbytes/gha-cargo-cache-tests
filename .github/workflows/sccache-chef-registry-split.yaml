@@ -1,4 +1,4 @@
-name: sccache + chef (registry split)
+name: sccache-chef-registry-split
 
 on: push
 

@@ -1,4 +1,4 @@
-name: chef (gha)
+name: chef-gha
 
 on: push
 
