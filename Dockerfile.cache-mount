@@ -12,9 +12,8 @@ COPY .git/HEAD ./.git
 COPY .git/refs ./.git/refs
 COPY .git/objects ./.git/objects
 
-RUN --mount=type=cache,target=target --mount=type=cache,target=$CARGO_HOME \
-	cargo build --release && cp -r target target.tmp
-RUN mv target.tmp target
+RUN --mount=type=cache,target=target.cached --mount=type=cache,target=$CARGO_HOME \
+	cargo build --release --target-dir=target.cached && cp -r target.cached target
 
 FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y libpq-dev ca-certificates
