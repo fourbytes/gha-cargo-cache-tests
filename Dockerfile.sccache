@@ -3,8 +3,6 @@
 FROM ghcr.io/slickbench/docker-rust-base:main as builder
 WORKDIR /app
 
-RUN cargo install sccache
-
 ENV RUSTC_WRAPPER sccache
 ENV SCCACHE_S3_USE_SSL true
 ARG SCCACHE_ENDPOINT
@@ -17,7 +15,8 @@ COPY Cargo.lock ./
 COPY src ./src
 COPY .git ./.git
 
-RUN cargo build --release
+RUN cargo build --release \
+	&& sccache -s
 
 FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y libpq-dev ca-certificates
