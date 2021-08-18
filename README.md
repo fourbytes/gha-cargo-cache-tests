@@ -15,50 +15,56 @@ Potential optimisations that I've yet to test:
 
 ## Caching Methods
 ### BuildKit Cache Mount
-#### Average Timings
+#### Fastest Timings
 | Stage    | Source Changed | Lockfile Changed |
 | -------: | -------------: | ---------------: |
 | build    | 3m 4s          | 7m 55s           |
 | test     | 2m 42s         | 4m 25s           |
 | package  | 1m 43s         | 1m 45s           |
+| total    | 13m 18s        |                  |
 
 ### `cargo-chef` (cache to gha)
-#### Average Timings
+#### Fastest Timings
 | Stage    | Source Changed | Lockfile Changed |
 | -------: | -------------: | ---------------: |
 | build    | 2m 18s         | 8m 28s           |
 | test     | 53s            | 51s              |
 | package  | 2m 0s          | 6m 58s           |
+| total    | 11m 43s        |                  |
 
 ### `sccache`
-#### Average Timings
+#### Fastest Timings
 | Stage    | Source Changed | Lockfile Changed |
 | -------: | -------------: | ---------------: |
-| build    | 3m 18s         | 6m 12s           |
+| build    | 2m 49s         | 6m 12s           |
 | test     | 54s            | 53s              |
-| package  | 1m 3s          | 1m 10s           |
+| package  | 1m 8s          | 1m 10s           |
+| total    | 5m 25s         |                  |
 
 ### `sccache` + `cargo-chef` (cache to gha)
-#### Average Timings
+#### Fastest Timings
 | Stage    | Source Changed | Lockfile Changed |
 | -------: | -------------: | ---------------: |
-| build    | 4m 39s         | 8m 30s           |
-| test     | 56s            | 54s              |
-| package  | 4m 31s         | 1m 49s           |
+| build    | 1m 28s         | 8m 30s           |
+| test     | 47s            | 54s              |
+| package  | 1m 22s         | 1m 49s           |
+| total    | 4m 13s         |                  |
 
 ### `sccache` + `cargo-chef` (cache to registry - split dependencies)
-#### Average Timings
+#### Fastest Timings
 | Stage    | Source Changed | Lockfile Changed |
 | -------: | -------------: | ---------------: |
-| build    | 3m 38s         | 6m 59s           |
-| test     | 52s            | 54s              |
-| package  | 1m 14s         | 1m 23s           |
+| build    | 2m 57s         | 6m 59s           |
+| test     | 46s            | 54s              |
+| package  | 1m 24s         | 1m 23s           |
+| total    | 5m 40s         |                  |
 
 ### `sccache` + `cargo-chef` (cache to registry)
-#### Average Timings
+#### Fastest Timings
 | Stage    | Source Changed | Lockfile Changed |
 | -------: | -------------: | ---------------: |
-| build    | 2m 31s         | 7m 16s           |
-| test     | 56s            | 55s              |
-| package  | 1m 15s         | 59s              |
+| build    | 1m 20s         | 7m 16s           |
+| test     | 52s            | 55s              |
+| package  | 1m 0s          | 59s              |
+| total    | 3m 43s         |                  |
 
