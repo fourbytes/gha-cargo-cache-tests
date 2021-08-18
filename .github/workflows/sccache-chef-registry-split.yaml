@@ -1,9 +1,14 @@
-name: cargo-chef + gha cache
+name: cargo-chef + sccache + registry cache (split)
 
 on: push
 
 env:
   DOCKER_BUILDKIT: 1
+  DOCKER_BUILD_ARGS: |
+    SCCACHE_BUCKET=docker-rust-sccache-test
+    SCCACHE_ENDPOINT=ewr1.vultrobjects.com:443
+    AWS_ACCESS_KEY_ID=${{ secrets.S3_ACCESS_KEY }}
+    AWS_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_KEY }}
   CARGO_TERM_COLOR: always
   IMAGE: ghcr.io/fourbytes/gha-cargo-cache-tests
 
@@ -22,7 +27,7 @@ jobs:
           images: |
             ${{ env.IMAGE }}
           tags: |
-            type=ref,event=branch,suffix=-builder
+            type=ref,event=branch,suffix=-sccache-chef-registry-split-builder
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
         with:
@@ -34,17 +39,29 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push
+      - name: Build and push dependencies
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile.chef
+          file: Dockerfile.chef.sccache
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          target: cacher
+          cache-from: type=registry,ref=${{ steps.meta.outputs.tags }}-cacher
+          cache-to: type=registry,ref=${{ steps.meta.outputs.tags }}-cacher,mode=max
+          build-args: ${{ env.DOCKER_BUILD_ARGS }}
+      - name: Build and push application
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile.chef.sccache
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           target: builder
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ steps.meta.outputs.tags }}
+          build-args: ${{ env.DOCKER_BUILD_ARGS }}
 
   test:
     needs: build
@@ -61,6 +78,7 @@ jobs:
         working-directory: /app
 
     steps:
+      - run: echo $DOCKER_BUILD_ARGS >> $GITHUB_ENV
       - name: Run tests
         run: cargo test --release
 
@@ -92,9 +110,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile.chef
+          file: Dockerfile.chef.sccache
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ needs.build.outputs.builder-image }}-cacher
+          build-args: ${{ env.DOCKER_BUILD_ARGS }}

@@ -1,4 +1,4 @@
-name: sccache
+name: cargo-chef + sccache + registry cache
 
 on: push
 
@@ -27,9 +27,8 @@ jobs:
           images: |
             ${{ env.IMAGE }}
           tags: |
-            type=ref,event=branch,suffix=-sccache-builder
+            type=ref,event=branch,suffix=-sccache-chef-registry-builder
       - name: Set up Docker Buildx
-        id: buildx
         uses: docker/setup-buildx-action@v1
         with:
           version: v0.6.0
@@ -44,14 +43,14 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile.sccache
+          file: Dockerfile.chef.sccache
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           target: builder
-          cache-to: type=registry,ref=${{ steps.meta.outputs.tags }}-cache,mode=max
+          cache-from: type=registry,ref=${{ steps.meta.outputs.tags }}-cacher
+          cache-to: type=registry,ref=${{ steps.meta.outputs.tags }}-cacher,mode=max
           build-args: ${{ env.DOCKER_BUILD_ARGS }}
-
 
   test:
     needs: build
@@ -68,6 +67,7 @@ jobs:
         working-directory: /app
 
     steps:
+      - run: echo $DOCKER_BUILD_ARGS >> $GITHUB_ENV
       - name: Run tests
         run: cargo test --release
 
@@ -83,7 +83,7 @@ jobs:
           images: |
             ${{ env.IMAGE }}
           tags: |
-            type=ref,event=branch,suffix=-cm
+            type=ref,event=branch
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
         with:
@@ -99,9 +99,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile.sccache
+          file: Dockerfile.chef.sccache
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ needs.build.outputs.builder-image }}-cache
+          cache-from: type=registry,ref=${{ needs.build.outputs.builder-image }}-cacher
           build-args: ${{ env.DOCKER_BUILD_ARGS }}

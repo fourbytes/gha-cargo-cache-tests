@@ -1,4 +1,4 @@
-name: Docker Cache Mount
+name: cargo-chef + gha cache
 
 on: push
 
@@ -22,26 +22,12 @@ jobs:
           images: |
             ${{ env.IMAGE }}
           tags: |
-            type=ref,event=branch,suffix=-cm-builder
+            type=ref,event=branch,suffix=-chef-gha-builder
       - name: Set up Docker Buildx
-        id: buildx
         uses: docker/setup-buildx-action@v1
         with:
           version: v0.6.0
           buildkitd-flags: --debug
-      - name: Enable buildkit cache
-        uses: actions/cache@v2
-        with:
-          path: /tmp/buildkit-cache/buildkit-state.tar
-          key: ${{ runner.os }}-buildkit-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildkit-
-      - name: Load buildkit state from cache
-        uses: dashevo/gh-action-cache-buildkit-state@v1
-        with:
-          builder: buildx_buildkit_${{ steps.buildx.outputs.name }}0
-          cache-path: /tmp/buildkit-cache
-          cache-max-size: 2g
       - name: Login to GHCR
         uses: docker/login-action@v1
         with:
@@ -52,11 +38,13 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile.cache-mount
+          file: Dockerfile.chef
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           target: builder
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   test:
     needs: build
@@ -88,26 +76,12 @@ jobs:
           images: |
             ${{ env.IMAGE }}
           tags: |
-            type=ref,event=branch,suffix=-cm
+            type=ref,event=branch
       - name: Set up Docker Buildx
-        id: buildx
         uses: docker/setup-buildx-action@v1
         with:
           version: v0.6.0
           buildkitd-flags: --debug
-      - name: Enable buildkit cache
-        uses: actions/cache@v2
-        with:
-          path: /tmp/buildkit-cache/buildkit-state.tar
-          key: ${{ runner.os }}-buildkit-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildkit-
-      - name: Load buildkit state from cache
-        uses: dashevo/gh-action-cache-buildkit-state@v1
-        with:
-          builder: buildx_buildkit_${{ steps.buildx.outputs.name }}0
-          cache-path: /tmp/buildkit-cache
-          cache-max-size: 2g
       - name: Login to GHCR
         uses: docker/login-action@v1
         with:
@@ -118,8 +92,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile.cache-mount
+          file: Dockerfile.chef
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ needs.build.outputs.builder-image }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
