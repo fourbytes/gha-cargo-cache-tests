@@ -1,0 +1,56 @@
+# syntax=docker/dockerfile:experimental
+
+FROM ghcr.io/slickbench/docker-rust-base:main as planner
+WORKDIR /app
+
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM ghcr.io/slickbench/docker-rust-base:main as cacher
+WORKDIR /app
+
+COPY --from=planner /app/recipe.json recipe.json
+
+ENV RUSTC_WRAPPER sccache
+ENV SCCACHE_S3_USE_SSL true
+ARG SCCACHE_ENDPOINT
+ARG SCCACHE_BUCKET
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+
+RUN cargo chef cook --release --recipe-path recipe.json --workspace
+
+FROM ghcr.io/slickbench/docker-rust-base:main as builder
+WORKDIR /app
+
+COPY Cargo.toml ./
+COPY Cargo.lock ./
+COPY src ./src
+
+COPY --from=cacher /app/target target
+COPY --from=cacher $CARGO_HOME $CARGO_HOME
+
+RUN mkdir .git
+COPY .git/HEAD ./.git
+COPY .git/refs ./.git/refs
+COPY .git/objects ./.git/objects
+
+ENV RUSTC_WRAPPER sccache
+ENV SCCACHE_S3_USE_SSL true
+ARG SCCACHE_ENDPOINT
+ARG SCCACHE_BUCKET
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+
+RUN sccache -s \
+	&& cargo build --release \
+	&& sccache -s
+
+FROM debian:bullseye-slim
+RUN apt-get update && apt-get install -y libpq-dev ca-certificates
+
+WORKDIR /app
+
+COPY --from=builder /app/target/release/test-project /usr/bin
+
+CMD ["test-project"]
