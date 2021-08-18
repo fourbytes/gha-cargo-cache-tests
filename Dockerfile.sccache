@@ -13,7 +13,12 @@ ARG AWS_SECRET_ACCESS_KEY
 COPY Cargo.toml ./
 COPY Cargo.lock ./
 COPY src ./src
-COPY .git ./.git
+
+# Only copy necessary git files needed to retrieve the current commit sha.
+RUN mkdir .git
+COPY .git/HEAD ./.git
+COPY .git/refs ./.git/refs
+COPY .git/objects ./.git/objects
 
 RUN sccache -s \
 	&& cargo build --release \

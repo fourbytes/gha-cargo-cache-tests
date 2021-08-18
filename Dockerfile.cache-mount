@@ -6,7 +6,11 @@ WORKDIR /app
 COPY Cargo.toml ./
 COPY Cargo.lock ./
 COPY src ./src
-COPY .git ./.git
+
+RUN mkdir .git
+COPY .git/HEAD ./.git
+COPY .git/refs ./.git/refs
+COPY .git/objects ./.git/objects
 
 RUN --mount=type=cache,target=target --mount=type=cache,target=$CARGO_HOME \
 	cargo build --release && cp -r target target.tmp
