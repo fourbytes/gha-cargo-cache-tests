@@ -19,13 +19,13 @@ COPY Cargo.toml ./
 COPY Cargo.lock ./
 COPY src ./src
 
+COPY --from=cacher /app/target target
+COPY --from=cacher $CARGO_HOME $CARGO_HOME
+
 RUN mkdir .git
 COPY .git/HEAD ./.git
 COPY .git/refs ./.git/refs
 COPY .git/objects ./.git/objects
-
-COPY --from=cacher /app/target target
-COPY --from=cacher $CARGO_HOME $CARGO_HOME
 
 RUN cargo build --release
 
