@@ -1,5 +1,8 @@
 # gha-cargo-cache-tests
-Some experimentation on the best methods to cache Rust build dependencies on GitHub Actions.
+Some experimentation on the best methods to cache Rust build dependencies on GitHub Actions. The average timings are manually recorded at the moment.
+
+## Contributions
+Any improvement suggestions or PRs for further optimisations are welcome.
 
 ## Notes
 > `sccache` is setup to cache to an object storage server (for testing this is an S3 compatible object store with Vultr).
@@ -11,8 +14,8 @@ Some experimentation on the best methods to cache Rust build dependencies on Git
 #### Average Timings
 | Stage    | Source Changed | Lockfile Changed |
 | -------: | -------------: | ---------------: |
-| build    | 2m 44s         | 5m 32s           |
-| test     | 45s            | 52s              |
+| build    | 3m 21s         | 5m 32s           |
+| test     | 44s            | 52s              |
 | package  | 1m 6s          | 52s              |
 
 ### `cargo-chef` (cache to gha)
@@ -40,6 +43,12 @@ Some experimentation on the best methods to cache Rust build dependencies on Git
 | package  | 1m 9s          | 52s              |
 
 ### `sccache` + `cargo-chef` (cache to registry - split dependencies)
+#### Average Timings
+| Stage    | Source Changed | Lockfile Changed |
+| -------: | -------------: | ---------------: |
+| build    | 3m 18s         | 7m 20s           |
+| test     | 44s            | 50s              |
+| package  | 1m 6s          | 52s              |
 
 ### `sccache` + `cargo-chef` (cache to gha)
 #### Average Timings

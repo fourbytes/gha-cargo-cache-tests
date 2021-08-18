@@ -1,4 +1,4 @@
-name: cargo-chef + sccache + registry cache
+name: sccache + chef (registry)
 
 on: push
 
