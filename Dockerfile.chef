@@ -1,20 +1,18 @@
 # syntax=docker/dockerfile:experimental
 
-FROM rust:latest as planner
+FROM ghcr.io/slickbench/docker-rust-base:main as planner
 WORKDIR /app
 
-RUN cargo install cargo-chef
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
-FROM rust:latest as cacher
+FROM ghcr.io/slickbench/docker-rust-base:main as cacher
 WORKDIR /app
 
-RUN cargo install cargo-chef
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json --workspace
 
-FROM rust:latest as builder
+FROM ghcr.io/slickbench/docker-rust-base:main as builder
 WORKDIR /app
 
 COPY Cargo.toml ./

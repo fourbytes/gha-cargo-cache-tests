@@ -3,13 +3,21 @@
 FROM ghcr.io/slickbench/docker-rust-base:main as builder
 WORKDIR /app
 
+RUN cargo install sccache
+
+ENV RUSTC_WRAPPER sccache
+ENV SCCACHE_S3_USE_SSL true
+ARG SCCACHE_ENDPOINT
+ARG SCCACHE_BUCKET
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+
 COPY Cargo.toml ./
 COPY Cargo.lock ./
 COPY src ./src
 COPY .git ./.git
 
-RUN --mount=type=cache,target=target --mount=type=cache,target=$CARGO_HOME \
-	cargo build --release --out-dir release
+RUN cargo build --release --out-dir release
 
 FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y libpq-dev ca-certificates
