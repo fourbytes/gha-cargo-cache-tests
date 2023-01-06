@@ -342,7 +342,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_urlencoded",
- "tokio 1.10.0",
+ "tokio 1.16.1",
  "tokio-util 0.6.7",
  "tower",
  "tower-http",
@@ -912,7 +912,7 @@ dependencies = [
  "itoa",
  "pin-project-lite 0.2.7",
  "socket2 0.4.1",
- "tokio 1.10.0",
+ "tokio 1.16.1",
  "tower-service",
  "tracing",
  "want",
@@ -1726,7 +1726,7 @@ dependencies = [
  "diesel",
  "juniper",
  "serde",
- "tokio 1.10.0",
+ "tokio 1.16.1",
  "tracing",
 ]
 
@@ -1845,11 +1845,10 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "1.10.0"
+version = "1.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01cf844b23c6131f624accf65ce0e4e9956a8bb329400ea5bcc26ae3a5c20b0b"
+checksum = "0c27a64b625de6d309e8c57716ba93021dccf1b3b5c97edd6d3dd2d2135afc0a"
 dependencies = [
- "autocfg",
  "libc",
  "mio 0.7.13",
  "pin-project-lite 0.2.7",
@@ -1881,7 +1880,7 @@ dependencies = [
  "futures-sink",
  "log",
  "pin-project-lite 0.2.7",
- "tokio 1.10.0",
+ "tokio 1.16.1",
 ]
 
 [[package]]
@@ -1893,7 +1892,7 @@ dependencies = [
  "futures-core",
  "futures-util",
  "pin-project 1.0.8",
- "tokio 1.10.0",
+ "tokio 1.16.1",
  "tokio-util 0.6.7",
  "tower-layer",
  "tower-service",
